@@ -13,8 +13,6 @@ const repeat = (arr: any, n: any) => Array(n).fill(arr).flat();
 
 let studentList: StudentInfo[] = students;
 
-studentList = repeat(studentList, 5);
-
 const modalActive = ref(false);
 
 
@@ -59,7 +57,6 @@ export default defineComponent({
 </template>
 
 <style scoped>
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
@@ -76,7 +73,11 @@ export default defineComponent({
 
   display: flex;
   justify-content: space-between;
-  align-items: center;
+
+
+  & :not(.student-wrapper) {
+    align-items: center;
+  }
 
   &.student-wrapper {
     display: grid;
@@ -84,7 +85,7 @@ export default defineComponent({
     gap: 20px;
     max-width: 1280px;
 
-    overflow-y: scroll;
+    overflow-y: auto;
     height: calc(100vh - 107px - 75px - 90px);
 
 

@@ -11,39 +11,42 @@
                                 <label for="name">
                                     Nom
                                 </label>
-                                <input type="text" id="name" />
+                                <input type="text" id="name" v-model.trim="studentData.name" />
                             </div>
                             <div>
                                 <label for="firstname">
                                     Prénom
                                 </label>
-                                <input type="text" id="firstname" />
+                                <input type="text" id="firstname" v-model.trim="studentData.firstname" />
                             </div>
                             <div>
                                 <label for="description">
                                     Description
                                 </label>
-                                <textarea id="description"
-                                    placeholder="Donnez une brève description de qui vous êtes."></textarea>
+                                <textarea id="description" placeholder="Donnez une brève description de qui vous êtes."
+                                    v-model.trim="studentData.description"></textarea>
                             </div>
                             <div>
                                 <label for="promotion">
                                     Promotion
                                 </label>
-                                <input type="number" value="2024" min="2010" max="3000" id="promotion">
+                                <input type="number" value="2024" min="2010" max="3000" id="promotion"
+                                    v-model.number="studentData.promotion">
                             </div>
                             <div>
                                 <label>Entreprise</label>
-                                <input type="file" id="company" class="company-input">
-                                <label for="company">
-                                    <p>Importer logo</p>
+                                <input type="file" id="company" class="company-input" accept="image/*"
+                                    ref="uploadCompanyLogo" @change="handleCompanyLogoUpload">
+                                <label for="company" :class="{ 'filled-input': studentData.company !== '' }">
+                                    <p>{{ studentData.company || 'Importer logo' }}</p>
                                     <i class="ri-gallery-upload-line ri-2x"></i>
                                 </label>
                                 <em class="note">jpg/jeg/png uniquement</em>
                             </div>
                         </article>
                         <aside class="picture">
-                            <input id="profile-picture" type="file" class="profile-picture-input">
+                            <input id="profile-picture" type="file" class="profile-picture-input" accept="image/*"
+                                @change="handleProfilePictureUpload" ref="uploadProfilePicture">
                             <label for="profile-picture">
                                 <i class="ri-gallery-upload-line ri-4x"></i>
                                 <p>Importer image</p>
@@ -52,7 +55,7 @@
                             <p class="note">jpg/jpeg/png uniquement</p>
                         </aside>
                     </div>
-                    <button type="submit" class="submit">Valider</button>
+                    <button type="submit" class="submit" @click="submit">Valider</button>
                 </form>
             </section>
         </section>
@@ -60,7 +63,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
     props: {
@@ -69,11 +72,39 @@ export default defineComponent({
             type: Boolean
         }
     },
+    data() {
+        return {
+            studentData: {
+                name: '',
+                firstname: '',
+                description: '',
+                promotion: 2023,
+                company: '',
+                profilePicture: '',
+            }
+        }
+    },
     methods: {
         closeModal() {
             this.$emit('close-modal');
         },
-    }
+        submit() {
+            console.log(this.studentData);
+        },
+        handleCompanyLogoUpload() {
+            this.studentData.company = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
+        },
+        handleProfilePictureUpload() {
+            this.studentData.profilePicture = this.handleImageInput(this.$refs.uploadProfilePicture as HTMLInputElement);
+        },
+        handleImageInput(inputElement: HTMLInputElement) {
+            const files: FileList | null = inputElement.files;
+            if (files && files.length > 0) {
+                return files.item(0)?.name ?? '';
+            }
+            return '';
+        }
+    },
 })
 
 </script>
@@ -99,6 +130,8 @@ export default defineComponent({
             width: 75%;
             margin: 0 auto;
             padding: 20px 30px;
+            max-height: calc(100vh - 50px);
+            overflow-y: auto;
 
             & .close-modal {
                 font-size: 40px;
@@ -176,6 +209,11 @@ export default defineComponent({
                         &+.note {
                             float: right;
                         }
+
+                        &.filled-input {
+                            border: 1px solid var(--primary-color);
+                            color: var(--primary-color);
+                        }
                     }
 
                 }
@@ -200,7 +238,7 @@ export default defineComponent({
                         flex-direction: column;
                         justify-content: center;
                         border-radius: 100%;
-                        border: 1.5px solid var(--headings);
+                        border: 1px solid var(--headings);
 
                         & p {
                             font-size: 13px;
@@ -225,6 +263,29 @@ export default defineComponent({
                 font-size: 16px;
                 font-family: 'Montserrat', sans-serif;
                 font-weight: 700;
+                cursor: pointer;
+            }
+
+            /* width */
+            &::-webkit-scrollbar {
+                width: 10px;
+                cursor: pointer;
+            }
+
+            /* Track */
+            &::-webkit-scrollbar-track {
+                background: var(--bg-color-darker);
+            }
+
+            /* Handle */
+            &::-webkit-scrollbar-thumb {
+                background-clip: padding-box;
+                background: var(--primary-dark-color);
+            }
+
+            /* Handle on hover */
+            &::-webkit-scrollbar-thumb:hover {
+                background: var(--primary-color);
             }
         }
     }
