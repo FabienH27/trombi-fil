@@ -5,16 +5,15 @@ import StudentCard from './components/StudentCard.vue';
 import type { StudentInfo } from './interfaces/StudentInfo';
 import { students } from '@/assets/students';
 import StudentForm from './components/StudentForm.vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent, isProxy, reactive, ref, toRaw } from 'vue';
 
 const promoChoices = [2024, 2025, 2026];
 
 const repeat = (arr: any, n: any) => Array(n).fill(arr).flat();
 
-let studentList: StudentInfo[] = students;
+const studentList: StudentInfo[] = reactive(students);
 
 const modalActive = ref(false);
-
 
 export default defineComponent({
   components: {
@@ -30,6 +29,12 @@ export default defineComponent({
   methods: {
     toggleModal() {
       modalActive.value = !modalActive.value;
+    },
+    addStudent(student: any){
+      if(isProxy(student)){
+        const rawStudent = toRaw(student);
+        studentList.unshift(rawStudent);
+      }
     }
   },
 });
@@ -50,7 +55,7 @@ export default defineComponent({
     </section>
 
     <Transition name="fade">
-      <StudentForm :is-active="modalActive" @close-modal="toggleModal" />
+      <StudentForm :is-active="modalActive" @close-modal="toggleModal" @submit="addStudent" />
     </Transition>
 
   </main>

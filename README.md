@@ -2,7 +2,7 @@
 
 ## Get started 
 
-Run `npx vite` and launch the app in your favorite browser.
+Run `npm start` and launch the app in your favorite browser.
 
 ## About this project
 

@@ -4,20 +4,20 @@
             <section class="modal-container" @click.stop="">
                 <span @click="closeModal" class="close-modal">&times;</span>
                 <h1 class="title">Créer un étudiant</h1>
-                <form>
+                <form @submit.prevent="submit">
                     <div class="content">
                         <article class="fields">
-                            <div>
-                                <label for="name">
-                                    Nom
-                                </label>
-                                <input type="text" id="name" v-model.trim="studentData.name" />
-                            </div>
                             <div>
                                 <label for="firstname">
                                     Prénom
                                 </label>
-                                <input type="text" id="firstname" v-model.trim="studentData.firstname" />
+                                <input type="text" id="firstname" v-model.trim="studentData.firstName" />
+                            </div>
+                            <div>
+                                <label for="name">
+                                    Nom
+                                </label>
+                                <input type="text" id="name" v-model.trim="studentData.lastName" />
                             </div>
                             <div>
                                 <label for="description">
@@ -37,8 +37,8 @@
                                 <label>Entreprise</label>
                                 <input type="file" id="company" class="company-input" accept="image/*"
                                     ref="uploadCompanyLogo" @change="handleCompanyLogoUpload">
-                                <label for="company" :class="{ 'filled-input': studentData.company !== '' }">
-                                    <p>{{ studentData.company || 'Importer logo' }}</p>
+                                <label for="company" :class="{ 'filled-input': studentData.companyLogo !== '' }">
+                                    <p>{{ studentData.companyLogo || 'Importer logo' }}</p>
                                     <i class="ri-gallery-upload-line ri-2x"></i>
                                 </label>
                                 <em class="note">jpg/jeg/png uniquement</em>
@@ -55,7 +55,7 @@
                             <p class="note">jpg/jpeg/png uniquement</p>
                         </aside>
                     </div>
-                    <button type="submit" class="submit" @click="submit">Valider</button>
+                    <button type="submit" class="submit">Valider</button>
                 </form>
             </section>
         </section>
@@ -64,6 +64,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import type { StudentInfo } from './../interfaces/StudentInfo';
 
 export default defineComponent({
     props: {
@@ -75,13 +76,13 @@ export default defineComponent({
     data() {
         return {
             studentData: {
-                name: '',
-                firstname: '',
+                firstName: '',
+                lastName: '',
                 description: '',
                 promotion: 2023,
-                company: '',
+                companyLogo: '',
                 profilePicture: '',
-            }
+            } as StudentInfo
         }
     },
     methods: {
@@ -89,10 +90,11 @@ export default defineComponent({
             this.$emit('close-modal');
         },
         submit() {
-            console.log(this.studentData);
+            this.$emit('submit', this.studentData);
+            this.closeModal();
         },
         handleCompanyLogoUpload() {
-            this.studentData.company = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
+            this.studentData.companyLogo = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
         },
         handleProfilePictureUpload() {
             this.studentData.profilePicture = this.handleImageInput(this.$refs.uploadProfilePicture as HTMLInputElement);
