@@ -3,15 +3,12 @@ import TopBar from './components/TopBar.vue';
 import PromoSelector from './components/PromoSelector.vue';
 import StudentCard from './components/StudentCard.vue';
 import type { StudentInfo } from './interfaces/StudentInfo';
-import { students } from '@/assets/students';
 import StudentForm from './components/StudentForm.vue';
-import { defineComponent, isProxy, reactive, ref, toRaw } from 'vue';
+import { defineComponent, isProxy, ref, toRaw, type Ref } from 'vue';
 
 const promoChoices = [2024, 2025, 2026];
 
-const repeat = (arr: any, n: any) => Array(n).fill(arr).flat();
-
-const studentList: StudentInfo[] = reactive(students);
+let studentList: Ref<StudentInfo[]> = ref([]);
 
 const modalActive = ref(false);
 
@@ -26,14 +23,26 @@ export default defineComponent({
       modalActive
     }
   },
+  mounted() {
+    this.fetchStudents();
+  },
   methods: {
     toggleModal() {
       modalActive.value = !modalActive.value;
     },
-    addStudent(student: any){
-      if(isProxy(student)){
+    addStudent(student: any) {
+      if (isProxy(student)) {
         const rawStudent = toRaw(student);
-        studentList.unshift(rawStudent);
+        studentList.value.unshift(rawStudent);
+      }
+    },
+    async fetchStudents() {
+      try {
+        const response = await fetch('http://localhost:3000/students');
+        const data = await response.json()
+        studentList.value = data;
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     }
   },
@@ -51,6 +60,7 @@ export default defineComponent({
     </section>
 
     <section class="container student-wrapper">
+      <p v-if="!studentList.length">Aucun étudiant trouvé.</p>
       <StudentCard :student="student" v-for="(student, index) in studentList" :key="index" />
     </section>
 

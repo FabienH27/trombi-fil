@@ -34,7 +34,8 @@
                                     v-model.number="studentData.promotion">
                             </div>
                             <div>
-                                <label>Entreprise</label>
+                                <label for="company">Entreprise</label>
+                                <input type="text" v-model="studentData.companyName">
                                 <input type="file" id="company" class="company-input" accept="image/*"
                                     ref="uploadCompanyLogo" @change="handleCompanyLogoUpload">
                                 <label for="company" :class="{ 'filled-input': studentData.companyLogo !== '' }">
@@ -63,8 +64,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 import type { StudentInfo } from './../interfaces/StudentInfo';
+import axios from 'axios';
 
 export default defineComponent({
     props: {
@@ -81,7 +83,7 @@ export default defineComponent({
                 description: '',
                 promotion: 2023,
                 companyLogo: '',
-                profilePicture: '',
+                avatar: '',
             } as StudentInfo
         }
     },
@@ -97,7 +99,7 @@ export default defineComponent({
             this.studentData.companyLogo = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
         },
         handleProfilePictureUpload() {
-            this.studentData.profilePicture = this.handleImageInput(this.$refs.uploadProfilePicture as HTMLInputElement);
+            this.studentData.avatar = this.handleImageInput(this.$refs.uploadProfilePicture as HTMLInputElement);
         },
         handleImageInput(inputElement: HTMLInputElement) {
             const files: FileList | null = inputElement.files;

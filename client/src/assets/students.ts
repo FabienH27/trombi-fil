@@ -9,7 +9,7 @@ export let students: StudentInfo[] = [
         companyLogo: 'equativ.png',
         companyName: 'Equativ',
         description: "Accro à Blender, amoureux fou de Substance Painter et pro en course à pieds occasionnelle (quand le clavier n'est pas assez stimulant).",
-        profilePicture: 'fabienhannon.png'
+        avatar: 'fabienhannon.png'
     },
     {
         firstName: 'Test',
@@ -18,6 +18,6 @@ export let students: StudentInfo[] = [
         companyLogo: 'equativ.png',
         companyName: 'Equativ',
         description: "Developpeur Vue 3",
-        profilePicture: 'fabienhannon.png'
+        avatar: 'fabienhannon.png'
     }
 ]
