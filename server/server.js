@@ -58,7 +58,7 @@ app.get('/students', (req, res) => {
 
 app.post('/upload/:type', upload.single('file'), (req, res) => {
   const originalFileName = req.file?.originalname ?? '';
-  const filePath = 'public/images/companies/' + originalFileName;
+  const filePath = `public/images/${req.params.type}` + originalFileName;
   res.json({file: filePath});
 });
 

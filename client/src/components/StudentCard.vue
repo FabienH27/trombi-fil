@@ -22,7 +22,7 @@
 
 
 <script lang="ts">
-import { defineComponent, watch, type PropType, ref } from 'vue';
+import { defineComponent, type PropType } from 'vue';
 import type { StudentInfo } from '../interfaces/StudentInfo';
 import Avatar from "vue-boring-avatars";
 import { colors } from '../interfaces/colors';

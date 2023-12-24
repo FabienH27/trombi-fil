@@ -9,15 +9,15 @@
                         <article class="fields">
                             <div>
                                 <label for="firstname">
-                                    Prénom
+                                    Prénom *
                                 </label>
-                                <input type="text" id="firstname" v-model.trim="studentData.firstName" />
+                                <input type="text" id="firstname" required v-model.trim="studentData.firstName" />
                             </div>
                             <div>
                                 <label for="name">
-                                    Nom
+                                    Nom *
                                 </label>
-                                <input type="text" id="name" v-model.trim="studentData.lastName" />
+                                <input type="text" id="name" required v-model.trim="studentData.lastName" />
                             </div>
                             <div>
                                 <label for="description">
@@ -28,14 +28,15 @@
                             </div>
                             <div>
                                 <label for="promotion">
-                                    Promotion
+                                    Promotion *
                                 </label>
-                                <input type="number" value="2024" min="2010" max="3000" id="promotion"
+                                <input type="number" value="2024" min="2010" max="3000" required id="promotion"
                                     v-model.number="studentData.promotion">
                             </div>
                             <div>
-                                <label for="company">Entreprise</label>
-                                <input type="text" v-model="studentData.companyName">
+                                <label for="company">Entreprise *</label>
+                                <input type="text" required v-model="studentData.companyName"
+                                    placeholder="Nom de l'entreprise">
                                 <input type="file" id="company" class="company-input" accept="image/*"
                                     ref="uploadCompanyLogo" @change="handleCompanyLogoUpload">
                                 <label for="company" :class="{ 'filled-input': studentData.companyLogo !== '' }">
@@ -47,10 +48,10 @@
                         </article>
                         <aside class="picture">
                             <input id="profile-picture" type="file" class="profile-picture-input" accept="image/*"
-                                @change="handleProfilePictureUpload" ref="uploadProfilePicture">
-                            <label for="profile-picture">
+                                @change="handleProfilePictureUpload" ref="uploadAvatar">
+                            <label for="profile-picture" :class="{ 'filled-input': studentData.avatar !== '' }">
                                 <i class="ri-gallery-upload-line ri-4x"></i>
-                                <p>Importer image</p>
+                                <p>{{ studentData.avatar || 'Importer image' }} </p>
                             </label>
                             <p class="picture-title">Photo de profil</p>
                             <p class="note">jpg/jpeg/png uniquement</p>
@@ -67,6 +68,8 @@
 import { defineComponent } from 'vue';
 import type { StudentInfo } from './../interfaces/StudentInfo';
 
+const uploadUrl = 'http://localhost:3000/upload';
+
 export default defineComponent({
     props: {
         isActive: {
@@ -80,11 +83,12 @@ export default defineComponent({
                 firstName: '',
                 lastName: '',
                 description: '',
-                promotion: 2023,
+                promotion: new Date().getFullYear(),
                 companyLogo: '',
                 avatar: '',
             } as StudentInfo,
-            file: "",
+            companyLogo: '',
+            avatar: '',
             message: '',
         }
     },
@@ -101,57 +105,66 @@ export default defineComponent({
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(this.studentData)
-                }).then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                    })
+                });
             } catch (err) {
                 console.log(err);
             }
 
             const companyFormData = new FormData();
-            companyFormData.append('file', this.file);
+            companyFormData.append('file', this.companyLogo);
+            await this.uploadImage(uploadUrl, 'companies', companyFormData);
 
+            const avatarFormData = new FormData();
+            avatarFormData.append('file', this.avatar);
+            await this.uploadImage(uploadUrl, 'avatars', companyFormData);
+
+            this.$emit('submit', this.studentData);
+
+            this.resetForm();
+
+            this.closeModal();
+        },
+        async uploadImage(url: string, type: string, body: FormData) {
             try {
-                await fetch('http://localhost:3000/upload/companies', {
+                await fetch(`${url}/${type}`, {
                     method: 'POST',
-                    body: companyFormData,
-                }).then(response => response.json())
-                    .then(data => {
-                        // if (data.file) {
-                        //     const file = data.file as string;
-                        //     const test = file.split('/');
-                        //     test.shift();
-                        //     this.studentData.companyLogo = '/'.concat(test.join('/'));
-                        // }
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    })
+                    body
+                }).catch(console.error)
             } catch (err) {
                 console.error(err);
             }
-
-            this.$emit('submit', this.studentData);
-            this.closeModal();
         },
         handleCompanyLogoUpload() {
             const files: FileList | null = (this.$refs.uploadCompanyLogo as HTMLInputElement).files;
             if (files && files.length > 0) {
-                this.file = files.item(0) as any;
+                this.companyLogo = files.item(0) as any;
             }
             this.studentData.companyLogo = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
         },
         handleProfilePictureUpload() {
-            this.studentData.avatar = this.handleImageInput(this.$refs.uploadProfilePicture as HTMLInputElement);
+            const files: FileList | null = (this.$refs.uploadAvatar as HTMLInputElement).files;
+            if (files && files.length > 0) {
+                this.avatar = files.item(0) as any;
+            }
+            this.studentData.avatar = this.handleImageInput(this.$refs.uploadAvatar as HTMLInputElement);
         },
         handleImageInput(inputElement: HTMLInputElement) {
             const files: FileList | null = inputElement.files;
             if (files && files.length > 0) {
-                this.file = files.item(0) as any;
                 return files.item(0)?.name ?? '';
             }
             return '';
+        },
+        resetForm() {
+            this.studentData = {
+                avatar: '',
+                companyName: '',
+                description: '',
+                firstName: '',
+                lastName: '',
+                promotion: new Date().getFullYear(),
+                companyLogo: ''
+            };
         }
     },
 })
@@ -292,6 +305,12 @@ export default defineComponent({
                         & p {
                             font-size: 13px;
                         }
+
+                        &.filled-input {
+                            border: 1px solid var(--primary-color);
+                            color: var(--primary-color);
+                        }
+
                     }
 
                     & .picture-title {
