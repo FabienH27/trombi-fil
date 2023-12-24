@@ -11,6 +11,7 @@
     & .title {
       padding: 2rem 0;
       font-size: 20px;
+      color: var(--text);
 
       & * {
         display: inline-block;
@@ -46,10 +47,10 @@
 <template>
   <header class="topbar">
     <section class="content container">
-      <div class="title">
+      <a class="title" href="/">
         <i class="ri-user-fill ri-2x icon"></i>
         <h1>trombi-fil</h1>
-      </div>
+      </a>
 
       <div class="right-side">
         <button @click="openModal">Créer un étudiant</button>
@@ -65,7 +66,7 @@ export default defineComponent({
   methods: {
     openModal(){
       this.$emit('open-modal');
-    }
+    },
   }
 
 })

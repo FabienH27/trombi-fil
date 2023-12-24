@@ -10,6 +10,8 @@ const promoChoices = [2024, 2025, 2026];
 
 let studentList: Ref<StudentInfo[]> = ref([]);
 
+let fullList: StudentInfo[] = []
+
 const modalActive = ref(false);
 
 export default defineComponent({
@@ -20,7 +22,8 @@ export default defineComponent({
     return {
       studentList,
       promoChoices,
-      modalActive
+      modalActive,
+      selectedPromo: 'Toutes',
     }
   },
   mounted() {
@@ -36,11 +39,22 @@ export default defineComponent({
         studentList.value.unshift(rawStudent);
       }
     },
+    getActivePromotion(promotion: string) {
+      this.selectedPromo = promotion;
+      const selectedPromoString = this.selectedPromo.toString();
+
+      const filteredList = promotion !== 'Toutes'
+        ? fullList.filter(student => student.promotion.toString() === selectedPromoString)
+        : fullList;
+
+      studentList.value = filteredList;
+    },
     async fetchStudents() {
       try {
         const response = await fetch('http://localhost:3000/students');
         const data = await response.json()
         studentList.value = data;
+        fullList = studentList.value
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -56,18 +70,21 @@ export default defineComponent({
   <main>
     <section class="container">
       <h1 class="title">Les étudiants</h1>
-      <PromoSelector :promo-choices="promoChoices" />
+      <PromoSelector :promo-choices="promoChoices" @active-promo="getActivePromotion" />
     </section>
 
     <section class="container student-wrapper">
       <p v-if="!studentList.length">Aucun étudiant trouvé.</p>
-      <StudentCard :student="student" v-for="(student, index) in studentList" :key="index" />
+      
+      <TransitionGroup name="list">
+        <StudentCard :student="student" v-for="(student, index) in studentList" :key="index" />
+      </TransitionGroup>
     </section>
 
     <Transition name="fade">
       <StudentForm :is-active="modalActive" @close-modal="toggleModal" @submit="addStudent" />
     </Transition>
-
+    
   </main>
 </template>
 
@@ -80,6 +97,17 @@ export default defineComponent({
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
 }
 
 .container {
@@ -95,9 +123,11 @@ export default defineComponent({
   }
 
   &.student-wrapper {
+
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+    
     max-width: 1280px;
 
     overflow-y: auto;

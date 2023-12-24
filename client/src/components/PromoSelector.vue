@@ -13,6 +13,50 @@
     </article>
 </template>
 
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+    props: {
+        promoChoices: {
+            type: Array<number | string>,
+            required: true,
+            default: () => [2024],
+        },
+    },
+    data() {
+        const promotions: Array<number | string> = ['Toutes', ...this.promoChoices];
+        const active = promotions[0];
+        return {
+            promotions,
+            active,
+        };
+    },
+    emits: ['activePromo'],
+    methods: {
+        setActive(promotion: number | string) {
+            this.active = promotion;
+
+            this.$emit('activePromo', this.active);
+
+            const buttons = document.getElementsByClassName("promo-btn");
+            Array.from(buttons).forEach(button => {
+                const isSamePromotion = button.textContent?.toString() === promotion.toString();
+                const isActive = button.classList.contains('active');
+
+                if (isSamePromotion && !isActive) {
+                    button.classList.add('active');
+                } else if (!isSamePromotion && isActive) {
+                    button.classList.remove('active');
+                }
+            })
+
+        }
+    }
+
+});
+
+</script>
 
 <style scoped>
 .promo-selector {
@@ -89,46 +133,3 @@
 
 }
 </style>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-    props: {
-        promoChoices: {
-            type: Array<number | string>,
-            required: true,
-            default: () => [2024],
-        },
-    },
-    data() {
-        const promotions: Array<number | string> = ['Toutes', ...this.promoChoices];
-        const active = promotions[0];
-        return {
-            promotions,
-            active,
-        };
-    },
-    methods: {
-        setActive(promotion: number | string) {
-            this.active = promotion;
-
-            const buttons = document.getElementsByClassName("promo-btn");
-            Array.from(buttons).forEach(button => {
-                const isSamePromotion = button.textContent?.toString() === promotion.toString();
-                const isActive = button.classList.contains('active');
-
-                if (isSamePromotion && !isActive) {
-                    button.classList.add('active');
-                } else if (!isSamePromotion && isActive) {
-                    button.classList.remove('active');
-                }
-            })
-
-        }
-    }
-
-});
-
-
-</script>
