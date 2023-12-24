@@ -22,5 +22,8 @@
   "homepage": "https://github.com/FabienH27/trombi-fil#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0"
   }
 }

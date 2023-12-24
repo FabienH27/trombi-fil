@@ -22,7 +22,7 @@
 
 
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, watch, type PropType, ref } from 'vue';
 import type { StudentInfo } from '../interfaces/StudentInfo';
 import Avatar from "vue-boring-avatars";
 import { colors } from '../interfaces/colors';
@@ -36,16 +36,18 @@ export default defineComponent({
     },
     data() {
         return {
-            imagePath: '@/assets/images/companies/',
+            // imagePath: '@/assets/images/companies/',
             colors,
             avatar_exists: true,
             logo_exists: true,
+            image_url: this.student.companyLogo,
         }
     },
     computed: {
         getCompanyLogoPath() {
             const image_url = new URL(`/images/companies/${this.student.companyLogo}`, 'http://localhost:3000/').href;
             this.checkLogo(image_url)
+            // this.updateLogo(this.student.companyLogo ?? '');            
             return image_url;
         },
         getAvatarPath(){
@@ -73,6 +75,13 @@ export default defineComponent({
                 this.logo_exists = false;
             });   
             this.logo_exists = true;
+        },
+        updateLogo(logoPath: string){
+            if(!logoPath.startsWith('/images')){
+                logoPath = `/images/companies/${logoPath}`;
+            }
+            this.image_url = logoPath;
+            
         }
     },
     components: {

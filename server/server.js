@@ -1,28 +1,50 @@
 import express from 'express'
 import multer from 'multer'
 import cors from 'cors'
-import * as url from 'url'
+import fs from 'fs-extra';
+import bodyParser from 'body-parser';
+
 const app = express()
 const port = 3000
-const _dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 import students from './students.js'
 
+app.use(cors());
+app.use(bodyParser.json());
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images/')
+    const type = req.params.type;
+    console.log(type);
+    let path = `./public/images/${type}`
+    if(!fs.existsSync(path)){
+      fs.mkdirSync(path);
+    }
+    cb(null, path);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname)
+    cb(null, file.originalname)
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png"]
+  console.log(file.mimetype);
+  if(!allowedTypes.includes(file.mimetype)){
+    const error = new Error("Incorrect file");
+    error.code = "INCORRECT_FILETYPE";
+    return cb(error, false);
+  }
+  cb(null, true);
+}
+
+const upload = multer({storage, fileFilter})
+
+app.use((err, req, res, next) => {
+  if(err.code === "INCORRECT_FILETYPE"){
+    res.status(422).json({error: 'Only images are allowed'});
   }
 })
-
-const upload = multer({storage})
-
-app.use(cors());
-
-// app.use(express.static(_dirname + '/images/companies'))
-// app.use(express.static(_dirname + '/images/avatars/'))
 
 app.use(express.static('public'));
 
@@ -34,13 +56,19 @@ app.get('/students', (req, res) => {
   res.status(200).json(students);
 });
 
-app.get('images/company/1', (req, res) => {
-  
+app.post('/upload/:type', upload.single('file'), (req, res) => {
+  const originalFileName = req.file?.originalname ?? '';
+  const filePath = 'public/images/companies/' + originalFileName;
+  res.json({file: filePath});
 });
 
-app.post('/images/company', upload.single('company'), function(req, res, next) {
-  res.json({message: 'File uploaded successfully'})
+
+app.post('/students/create', (req, res) => {
+  const content = req.body;
+  students.push(content);  
+  res.status(200).json({student: content});
 })
+
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

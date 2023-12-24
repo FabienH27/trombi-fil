@@ -16,9 +16,9 @@ export default [
         firstName: 'Test',
         lastName: 'ABCBDBDBDBDBDBDBD',
         promotion: 2024,
-        companyLogo: 'equatiev.png',
+        companyLogo: 'equativ.png',
         companyName: 'Equativ',
         description: "Developpeur Vue 3",
-        avatar: 'doesnotexist.jpg'
+        avatar: 'fabienhannone.jpg'
     }
 ]

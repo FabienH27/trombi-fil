@@ -4,7 +4,7 @@
             <section class="modal-container" @click.stop="">
                 <span @click="closeModal" class="close-modal">&times;</span>
                 <h1 class="title">Créer un étudiant</h1>
-                <form @submit.prevent="submit">
+                <form @submit.prevent="submit" enctype="multipart/form-data" ref="studentForm">
                     <div class="content">
                         <article class="fields">
                             <div>
@@ -66,7 +66,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import type { StudentInfo } from './../interfaces/StudentInfo';
-import axios from 'axios';
 
 export default defineComponent({
     props: {
@@ -84,18 +83,63 @@ export default defineComponent({
                 promotion: 2023,
                 companyLogo: '',
                 avatar: '',
-            } as StudentInfo
+            } as StudentInfo,
+            file: "",
+            message: '',
         }
     },
     methods: {
         closeModal() {
             this.$emit('close-modal');
         },
-        submit() {
+        async submit() {
+            try {
+                await fetch('http://localhost:3000/students/create', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.studentData)
+                }).then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+            } catch (err) {
+                console.log(err);
+            }
+
+            const companyFormData = new FormData();
+            companyFormData.append('file', this.file);
+
+            try {
+                await fetch('http://localhost:3000/upload/companies', {
+                    method: 'POST',
+                    body: companyFormData,
+                }).then(response => response.json())
+                    .then(data => {
+                        // if (data.file) {
+                        //     const file = data.file as string;
+                        //     const test = file.split('/');
+                        //     test.shift();
+                        //     this.studentData.companyLogo = '/'.concat(test.join('/'));
+                        // }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    })
+            } catch (err) {
+                console.error(err);
+            }
+
             this.$emit('submit', this.studentData);
             this.closeModal();
         },
         handleCompanyLogoUpload() {
+            const files: FileList | null = (this.$refs.uploadCompanyLogo as HTMLInputElement).files;
+            if (files && files.length > 0) {
+                this.file = files.item(0) as any;
+            }
             this.studentData.companyLogo = this.handleImageInput(this.$refs.uploadCompanyLogo as HTMLInputElement);
         },
         handleProfilePictureUpload() {
@@ -104,6 +148,7 @@ export default defineComponent({
         handleImageInput(inputElement: HTMLInputElement) {
             const files: FileList | null = inputElement.files;
             if (files && files.length > 0) {
+                this.file = files.item(0) as any;
                 return files.item(0)?.name ?? '';
             }
             return '';
