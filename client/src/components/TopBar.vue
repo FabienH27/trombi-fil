@@ -1,3 +1,32 @@
+<template>
+  <header class="topbar">
+    <section class="content container">
+      <a class="title" href="/">
+        <i class="ri-user-fill ri-2x icon"></i>
+        <h1>trombi-fil</h1>
+      </a>
+
+      <div class="right-side">
+        <button @click="openModal">Créer un étudiant</button>
+      </div>
+    </section>
+  </header>
+</template>
+
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
+  methods: {
+    openModal() {
+      this.$emit('open-modal');
+    },
+  }
+
+})
+
+</script>
+
 <style scoped>
 .topbar {
   background-color: var(--neutral-color);
@@ -42,33 +71,3 @@
   }
 }
 </style>
-
-
-<template>
-  <header class="topbar">
-    <section class="content container">
-      <a class="title" href="/">
-        <i class="ri-user-fill ri-2x icon"></i>
-        <h1>trombi-fil</h1>
-      </a>
-
-      <div class="right-side">
-        <button @click="openModal">Créer un étudiant</button>
-      </div>
-    </section>
-  </header>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  methods: {
-    openModal(){
-      this.$emit('open-modal');
-    },
-  }
-
-})
-
-</script>

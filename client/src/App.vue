@@ -6,7 +6,7 @@ import type { StudentInfo } from './interfaces/StudentInfo';
 import StudentForm from './components/StudentForm.vue';
 import { defineComponent, isProxy, ref, toRaw, type Ref } from 'vue';
 
-const promoChoices = [2024, 2025, 2026];
+let promoChoices = [2024, 2025, 2026];
 
 let studentList: Ref<StudentInfo[]> = ref([]);
 
@@ -54,7 +54,7 @@ export default defineComponent({
         const response = await fetch('http://localhost:3000/students');
         const data = await response.json()
         studentList.value = data;
-        fullList = studentList.value
+        fullList = studentList.value;
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -163,4 +163,4 @@ export default defineComponent({
   }
 
 }
-</style>./interfaces/StudentInfo
+</style>
